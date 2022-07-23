@@ -212,7 +212,7 @@ data "template_file" "init1" {
     password = var.database_password , 
     dbname = var.database_name
   }
-  depends_on = [aws_db_instance.rds]
+  #depends_on = [aws_db_instance.rds]
   
 }
 
@@ -394,8 +394,8 @@ resource "aws_launch_configuration" "ec2" {
 resource "aws_autoscaling_group" "ec2" {
   launch_configuration = "${aws_launch_configuration.ec2.id}"
 #  availability_zones = var.availability_zones
-  desired_capacity = 2
-  min_size = 2
+  desired_capacity = 3
+  min_size = 3
   max_size = 3
 #   load_balancers = ["${aws_alb.alb.id}"]
 
