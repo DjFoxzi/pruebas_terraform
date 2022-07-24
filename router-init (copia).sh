@@ -14,10 +14,10 @@ cd /var/www
 mkdir inc
 cd inc
 echo "<?php
-define('DB_SERVER', '${rds_endpoint}');
-define('DB_USERNAME', '${user}');
-define('DB_PASSWORD', '${password}');
-define('DB_DATABASE', '${dbname}');
+define('DB_SERVER', 'terraform-20220723224721520300000001.crq5gsjduwmx.us-east-1.rds.amazonaws.com:3306');
+define('DB_USERNAME', 'user');
+define('DB_PASSWORD', 'password');
+define('DB_DATABASE', 'dbname');
 ?>" > dbinfo.inc
 
 sudo git clone https://github.com/DjFoxzi/pruebas_terraform.git && cd pruebas_terraform

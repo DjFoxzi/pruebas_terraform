@@ -1,0 +1,22 @@
+#!/bin/bash
+yum update -y
+amazon-linux-extras install -y lamp-mariadb10.2-php7.2 php7.2
+yum install -y httpd mariadb-server
+systemctl start httpd
+systemctl enable httpd
+usermod -a -G apache ec2-user
+chown -R ec2-user:apache /var/www
+chmod 2775 /var/www
+cd /var/www
+mkdir inc
+cd inc
+echo "<?php
+define('DB_SERVER', '${rds_endpoint}');
+define('DB_USERNAME', '${user}');
+define('DB_PASSWORD', '${password}');
+define('DB_DATABASE', '${dbname}');
+?>" > dbinfo.inc
+
+git clone https://github.com/DjFoxzi/pruebas_terraform.git && cd pruebas_terraform
+cp SamplePage.php  /var/www/html/
+echo "Hello World from $(hostname -f)" > /var/www/html/index.html

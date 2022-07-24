@@ -201,32 +201,22 @@ resource "aws_db_instance" "rds" {
 
 
 ########## END OF RDS PORTION ########
-##templatefile("user_data.tfpl", { rds_endpoint = "${aws_db_instance.rds.endpoint}", user  = var.database_user , password = var.database_password , dbname = var.database_name })
+
 
 ##########
 data "template_file" "init1" {
-  template = file("router-init.sh.tpl")
+  template = file("router-init.sh.tftpl")
   vars = {
     rds_endpoint = aws_db_instance.rds.endpoint, 
     user  = var.database_user , 
     password = var.database_password , 
     dbname = var.database_name
   }
-  #depends_on = [aws_db_instance.rds]
+  depends_on = [aws_db_instance.rds]
   
 }
 
 
-#data "template_file" "init" {
- # template = "${file("router-init.sh.tpl")}"
-
-  #vars = {
-   # rds_endpoint = "${aws_db_instance.rds.endpoint}", 
-   # user  = var.database_user , 
-   # password = var.database_password , 
-   # dbname = var.database_name
- # }
-#}
 
 ########### START OF WEBSERVER SECTION #########
 
@@ -326,6 +316,12 @@ resource "aws_security_group" "web_sg2" {
   }
 }
 
+ #templatescript.sh = templatefile("router-init.sh.tftpl", {
+ #   rds_endpoint = aws_db_instance.rds.endpoint, 
+ #   user  = var.database_user , 
+ #   password = var.database_password , 
+ #   dbname = var.database_name
+ # })
 
 ####CREATE EC2 INSTANCE
 resource "aws_instance" "app_server" {
@@ -338,10 +334,25 @@ resource "aws_instance" "app_server" {
 #  availability_zone                    = var.availability_zone
   vpc_security_group_ids               = ["${aws_security_group.web_sg1.id}", "${aws_security_group.web_sg2.id}"]
   subnet_id                            = "${aws_subnet.web_subnet2.id}" 
-#  user_data                            = templatefile("${path.module}/usrdata.sh", { rds_endpoint = "${var.endpoint}" }) 
-  # user_data =   templatefile("user_data.tfpl", { rds_endpoint = "${aws_db_instance.rds.endpoint}", user  = var.database_user , password = var.database_password , dbname = var.database_name })
   
-  user_data_base64       = base64encode(data.template_file.init1.rendered)
+  #user_data = file("./templatescript.sh")
+  
+  #user_data_base64 = base64encode(data.template_file.init1.rendered)
+  
+  user_data = base64encode(templatefile("./router-init.sh.tftpl", {
+    rds_endpoint = aws_db_instance.rds.endpoint, 
+    user  = var.database_user , 
+    password = var.database_password , 
+    dbname = var.database_name
+  }))
+
+
+  #user_data = base64encode(templatefile("${path.module}/router-init.sh", {
+  #  rds_endpoint = aws_db_instance.rds.endpoint, 
+  #  user  = var.database_user , 
+  #  password = var.database_password , 
+  #  dbname = var.database_name
+  #}))
   instance_initiated_shutdown_behavior = "terminate"
   root_block_device {
     volume_type = "gp2"
@@ -353,7 +364,7 @@ resource "aws_instance" "app_server" {
     Name = var.instance_name
   }
  
-depends_on = [aws_db_instance.rds]
+depends_on = [aws_db_instance.rds,data.template_file.init1]
 }
 
 
@@ -383,7 +394,6 @@ resource "aws_launch_configuration" "ec2" {
   instance_type          = "t2.micro"
   key_name               = "proyecto"
   security_groups        =  ["${aws_security_group.web_sg1.id}", "${aws_security_group.web_sg2.id}"]
- # user_data = file("init1.sh")
   lifecycle {
     create_before_destroy = true
   }
