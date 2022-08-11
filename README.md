@@ -21,3 +21,4 @@ Instrucciones:
 * Finalizado la ejecución de terraform apply se pasara la url del balanceador de carga para validar el despliegue correcto
   de la infraestructura
 
+Nota: Si ya no se requiere la infraestructura ejecutar el comando "terraform destroy" para bajar completamente todos los servicios relacionados
