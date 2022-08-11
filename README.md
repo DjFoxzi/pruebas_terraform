@@ -3,9 +3,9 @@ Proyecto Sistemas Distribuidos
 
 Integrantes:
 
-*Jonathan Perez Castro - 1733909
-*Juan David Delgado - 1733915
-*Brayan Rincones - ???
+* Jonathan Perez Castro - 1733909
+* Juan David Delgado - 1733915
+* Brayan Rincones - ???
 
 Requisitos:
 
